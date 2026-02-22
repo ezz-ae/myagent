@@ -1,0 +1,8 @@
+fastapi
+uvicorn[standard]
+pydantic
+openai
+python-dotenv
+httpx          # For async HTTP calls (model listing)
+elevenlabs     # Optional: for text-to-speech
+twilio         # Optional: for phone call integration

@@ -1,0 +1,42 @@
+# Dependencies
+node_modules/
+frontend/node_modules/
+backend/venv/
+
+# Build output
+frontend/.next/
+frontend/tsconfig.tsbuildinfo
+
+# Environment
+backend/.env
+.env
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Data (user's local data stays local)
+backend/data/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Planning docs (not needed in repo)
+MASTER_PLAN_5_ASSETS.md
+EXECUTIVE_SUMMARY.md
+IMPLEMENTATION_ROADMAP.md
+FOUR_ASSETS_FINAL_PLAN.md
+VISUAL_ASSET_COMPARISON.md
+SYSTEM_COMPLETE_WITH_NEW_ASSETS.md
+README_FINAL_STATUS.md
+FINAL_PLAN_6_ASSETS.md
+SHIP_TODAY.md
+INTEGRATION_PLAN_THREE_DASHBOARDS.md
+LINKBIO_INTEGRATION.md
+README_COMPLETE.md
