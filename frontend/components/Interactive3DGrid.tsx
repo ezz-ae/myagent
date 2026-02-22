@@ -81,18 +81,21 @@ function Scene() {
         enableZoom={true}
         enablePan={true}
       />
-      <ambientLight intensity={0.5} />
-      <pointLight position={[10, 10, 10]} />
+      <ambientLight intensity={0.8} />
+      <pointLight position={[15, 15, 15]} intensity={1.2} />
+      <pointLight position={[-15, -15, 15]} intensity={0.6} color="#6b7fff" />
       <Grid
         renderOrder={-1}
         position={[0, 0, 0]}
         infiniteGrid
         cellSize={1}
-        cellThickness={0.5}
+        cellThickness={0.8}
+        cellColor={[0.4, 0.4, 0.5]}
         sectionSize={3}
-        sectionThickness={1}
-        sectionColor={[0.5, 0.5, 0.5]}
+        sectionThickness={1.5}
+        sectionColor={[0.6, 0.6, 0.8]}
         fadeDistance={50}
+        fadeStrength={1.2}
       />
       {initialPositions.map((position, index) => (
         <AnimatedBox key={index} initialPosition={position} />

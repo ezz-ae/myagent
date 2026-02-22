@@ -171,7 +171,7 @@ export default function MainApp() {
                     <ChevronRight className="w-3.5 h-3.5 text-white/10 group-hover:text-white/25 transition-colors" />
                   </div>
                   <p className="text-2xl font-mono text-white/50 mb-1">
-                    {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : stat.value}
+                    {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : (stat.value > 0 ? stat.value : "—")}
                   </p>
                   <p className="text-xs text-white/20">{stat.label}</p>
                 </button>
