@@ -10,6 +10,7 @@ import {
 } from "lucide-react"
 import ActionSearchBar from "@/components/ActionSearchBar"
 import RemoteChat from "@/components/RemoteChat"
+import Interactive3DGridBg from "@/components/Interactive3DGridBg"
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000"
 
@@ -98,7 +99,10 @@ export default function MainApp() {
   ]
 
   return (
-    <div className="h-screen w-full bg-[#080808] overflow-hidden flex flex-col">
+    <div className="h-screen w-full bg-[#080808] overflow-hidden flex flex-col relative">
+      {/* Subtle 3D Grid Background */}
+      <Interactive3DGridBg blur={12} opacity={0.2} />
+
       {/* Top bar with Action Search */}
       <header className="flex items-center justify-between px-6 py-4 border-b border-white/[0.04]">
         <div className="flex items-center gap-3">
