@@ -101,37 +101,11 @@ export default function LandingPage() {
         </div>
       </div>
 
-      {/* Footer with Hero Text */}
-      <div className="relative z-20 backdrop-blur-sm bg-[#000000]/40 border-t border-white/[0.05] px-8 py-8">
-        <div className="max-w-4xl mx-auto">
-          {/* Hero content */}
-          <div className="text-center mb-6">
-            <h1 className="text-3xl md:text-4xl font-bold leading-tight mb-3">
-              <span className="text-white/85">Your AI.</span>{" "}
-              <span className="text-white/45">Your Machine.</span>{" "}
-              <span className="text-white/25">Your Rules.</span>
-            </h1>
-            <p className="text-white/25 text-sm leading-relaxed">
-              A powerful, private AI agent that runs entirely on your machine.
-              <br />
-              No cloud. No limits. No subscription.
-            </p>
-          </div>
-
-          {/* Footer info */}
-          <div className="flex items-center justify-center gap-6 text-[10px] text-white/12 uppercase tracking-widest">
-            <span>Powered by Ollama</span>
-            <span className="text-white/6">|</span>
-            <span>One-time payment</span>
-            <span className="text-white/6">|</span>
-            <span>Zero telemetry</span>
-            <span className="text-white/6">|</span>
-            <span className="flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-green-500/60 animate-pulse" />
-              100% Local
-            </span>
-          </div>
-        </div>
+      {/* Footer - One-line Copy */}
+      <div className="relative z-20 backdrop-blur-sm bg-[#000000]/40 border-t border-white/[0.05] px-8 py-4">
+        <p className="text-center text-white/30 text-sm tracking-wide">
+          Your AI. Your machine. Your rules. One-time payment. Zero telemetry. Forever yours.
+        </p>
       </div>
     </div>
   )
