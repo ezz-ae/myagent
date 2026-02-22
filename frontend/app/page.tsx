@@ -1,114 +1,137 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
 import SheepRun from "@/components/SheepRun"
 
 export default function LandingPage() {
   const router = useRouter()
-  const [mounted, setMounted] = useState(false)
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const animationRef = useRef<number>()
 
+  // Animated dark afternoon background with moving clouds
   useEffect(() => {
-    setMounted(true)
+    const canvas = canvasRef.current
+    if (!canvas) return
+
+    const ctx = canvas.getContext("2d")
+    if (!ctx) return
+
+    const resizeCanvas = () => {
+      canvas.width = window.innerWidth
+      canvas.height = window.innerHeight
+    }
+    resizeCanvas()
+    window.addEventListener("resize", resizeCanvas)
+
+    let time = 0
+    const clouds = Array.from({ length: 5 }, (_, i) => ({
+      x: (i * 300) % (canvas.width + 200),
+      y: (30 + i * 40) % 200,
+      size: 80 + i * 20,
+      speed: 0.3 + i * 0.1,
+    }))
+
+    const animate = () => {
+      time += 0.016
+
+      // Dark afternoon sky gradient
+      const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height)
+      gradient.addColorStop(0, "rgba(30, 20, 40, 0.95)") // Dark purple top
+      gradient.addColorStop(0.3, "rgba(40, 35, 60, 0.95)") // Deep blue
+      gradient.addColorStop(0.7, "rgba(50, 45, 80, 0.95)") // Darker
+      gradient.addColorStop(1, "rgba(20, 25, 45, 0.95)") // Near black bottom
+
+      ctx.fillStyle = gradient
+      ctx.fillRect(0, 0, canvas.width, canvas.height)
+
+      // Subtle animated stars/particles
+      ctx.fillStyle = "rgba(255, 255, 255, 0.15)"
+      for (let i = 0; i < 50; i++) {
+        const x = ((i * 137) % canvas.width + time * 5) % canvas.width
+        const y = ((i * 211) % (canvas.height * 0.6)) + 50
+        const size = 1 + Math.sin(time + i) * 0.5
+        ctx.fillRect(x, y, size, size)
+      }
+
+      // Moving clouds
+      ctx.fillStyle = "rgba(255, 255, 255, 0.08)"
+      for (const cloud of clouds) {
+        const x = (cloud.x + time * cloud.speed) % (canvas.width + 200)
+
+        // Simple cloud shape
+        ctx.beginPath()
+        ctx.arc(x, cloud.y, cloud.size, 0, Math.PI * 2)
+        ctx.arc(x + cloud.size * 0.6, cloud.y - cloud.size * 0.3, cloud.size * 0.8, 0, Math.PI * 2)
+        ctx.arc(x + cloud.size * 1.2, cloud.y, cloud.size, 0, Math.PI * 2)
+        ctx.fill()
+      }
+
+      // Subtle pulsing overlay effect
+      ctx.fillStyle = `rgba(0, 0, 0, ${0.15 + Math.sin(time * 0.5) * 0.05})`
+      ctx.fillRect(0, 0, canvas.width, canvas.height)
+
+      animationRef.current = requestAnimationFrame(animate)
+    }
+
+    animate()
+
+    return () => {
+      window.removeEventListener("resize", resizeCanvas)
+      if (animationRef.current) cancelAnimationFrame(animationRef.current)
+    }
   }, [])
 
-  const enterApp = () => {
-    router.push("/app")
-  }
-
   return (
-    <div className="h-screen w-full bg-[#080808] overflow-hidden relative flex flex-col">
-      {/* Subtle grid background */}
-      <div
-        className="absolute inset-0 opacity-[0.03]"
-        style={{
-          backgroundImage: `
-            linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)
-          `,
-          backgroundSize: "60px 60px",
-        }}
+    <div className="h-screen w-full overflow-hidden relative flex flex-col bg-[#080808]">
+      {/* Animated background */}
+      <canvas
+        ref={canvasRef}
+        className="absolute inset-0 z-0"
+        style={{ display: "block" }}
       />
 
-      {/* Header */}
-      <header className="relative z-10 flex items-center justify-between px-8 py-6">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-white/[0.06] border border-white/[0.08] flex items-center justify-center">
-            <span className="text-sm font-bold text-white/50">LA</span>
-          </div>
-          <span className="text-sm font-medium text-white/40 tracking-wide">LocalAgent</span>
-        </div>
-        <button
-          onClick={enterApp}
-          className="px-4 py-1.5 rounded-lg bg-white/[0.06] border border-white/[0.08] text-white/50 text-xs font-medium hover:bg-white/[0.1] hover:text-white/70 transition-all"
-        >
-          Enter App →
-        </button>
-      </header>
-
-      {/* Hero Section */}
-      <div className="relative z-10 flex flex-col items-center justify-center pt-8 pb-4 px-8">
-        <div
-          className={`transition-all duration-1000 ${
-            mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-          }`}
-        >
-          <h1 className="text-5xl md:text-6xl font-bold text-center leading-tight max-w-3xl mx-auto">
-            <span className="text-white/85">Your AI.</span>{" "}
-            <span className="text-white/45">Your Machine.</span>{" "}
-            <span className="text-white/25">Your Rules.</span>
-          </h1>
-          <p className="text-center text-white/25 text-lg mt-6 max-w-lg mx-auto leading-relaxed">
-            A powerful, private AI agent that runs entirely on your machine.
-            No cloud. No limits. No subscription.
-          </p>
-        </div>
-
-        <div
-          className={`flex gap-4 mt-8 transition-all duration-1000 delay-300 ${
-            mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-          }`}
-        >
-          <button
-            onClick={enterApp}
-            className="px-6 py-2.5 rounded-xl bg-white/[0.1] border border-white/[0.12] text-white/75 text-sm font-medium hover:bg-white/[0.15] hover:text-white transition-all"
-          >
-            Start Playing
-          </button>
-          <div className="flex items-center gap-2 px-4 py-2.5">
-            <div className="w-2 h-2 rounded-full bg-green-500/60 animate-pulse" />
-            <span className="text-xs text-white/25">100% Local</span>
-          </div>
+      {/* Game - Full viewport */}
+      <div className="flex-1 relative z-10 flex flex-col">
+        <div className="flex-1 relative">
+          <SheepRun
+            onGameOver={() => {}}
+            onStartPlaying={() => router.push("/app")}
+          />
         </div>
       </div>
 
-      {/* Sheep Run Game Section */}
-      <div
-        className={`flex-1 relative mx-8 mb-8 rounded-2xl overflow-hidden border border-white/[0.05] transition-all duration-1000 delay-500 ${
-          mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-        }`}
-      >
-        <SheepRun
-          onGameOver={(score) => {
-            // Game over triggers CTA
-          }}
-          onStartPlaying={enterApp}
-        />
-      </div>
+      {/* Footer with Hero Text */}
+      <div className="relative z-20 backdrop-blur-sm bg-[#000000]/40 border-t border-white/[0.05] px-8 py-8">
+        <div className="max-w-4xl mx-auto">
+          {/* Hero content */}
+          <div className="text-center mb-6">
+            <h1 className="text-3xl md:text-4xl font-bold leading-tight mb-3">
+              <span className="text-white/85">Your AI.</span>{" "}
+              <span className="text-white/45">Your Machine.</span>{" "}
+              <span className="text-white/25">Your Rules.</span>
+            </h1>
+            <p className="text-white/25 text-sm leading-relaxed">
+              A powerful, private AI agent that runs entirely on your machine.
+              <br />
+              No cloud. No limits. No subscription.
+            </p>
+          </div>
 
-      {/* Footer */}
-      <div className="relative z-10 flex items-center justify-center pb-6 gap-6">
-        <span className="text-[10px] text-white/12 uppercase tracking-widest">
-          Powered by Ollama
-        </span>
-        <span className="text-white/06">|</span>
-        <span className="text-[10px] text-white/12 uppercase tracking-widest">
-          One-time payment
-        </span>
-        <span className="text-white/06">|</span>
-        <span className="text-[10px] text-white/12 uppercase tracking-widest">
-          Zero telemetry
-        </span>
+          {/* Footer info */}
+          <div className="flex items-center justify-center gap-6 text-[10px] text-white/12 uppercase tracking-widest">
+            <span>Powered by Ollama</span>
+            <span className="text-white/6">|</span>
+            <span>One-time payment</span>
+            <span className="text-white/6">|</span>
+            <span>Zero telemetry</span>
+            <span className="text-white/6">|</span>
+            <span className="flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-green-500/60 animate-pulse" />
+              100% Local
+            </span>
+          </div>
+        </div>
       </div>
     </div>
   )
