@@ -36,9 +36,10 @@ interface SheepRunProps {
 export default function SheepRun({ onGameOver, onStartPlaying }: SheepRunProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const gameLoopRef = useRef<number>()
-  const [gameState, setGameState] = useState<"menu" | "playing" | "gameOver">("menu")
+  const [gameState, setGameState] = useState<"playing" | "gameOver">("playing")
   const [score, setScore] = useState(0)
   const [highScore, setHighScore] = useState(0)
+  const autoRestartRef = useRef<NodeJS.Timeout>()
 
   const gameRef = useRef<{
     sheep: Sheep
@@ -142,11 +143,35 @@ export default function SheepRun({ onGameOver, onStartPlaying }: SheepRunProps) 
   }, [createHazard])
 
   const jump = useCallback(() => {
-    if (gameState === "playing" && gameRef.current.sheep.onGround) {
+    if (gameRef.current.sheep.onGround) {
       gameRef.current.sheep.velocity = JUMP_FORCE
       gameRef.current.sheep.onGround = false
     }
-  }, [gameState])
+  }, [])
+
+  // AI logic: detect upcoming hazards and auto-jump
+  const shouldAutoJump = useCallback(() => {
+    const sheep = gameRef.current.sheep
+    const hazards = gameRef.current.hazards
+
+    // Look ahead for hazards within jumping distance
+    for (const hazard of hazards) {
+      const distanceToHazard = hazard.x - (sheep.x + sheep.width)
+
+      // If hazard is close and will hit us
+      if (distanceToHazard > -20 && distanceToHazard < 120 && sheep.onGround) {
+        // For high hazards (wolves), jump
+        if (hazard.y < GROUND_Y - 80) {
+          return true
+        }
+        // For low hazards (bushes), jump if on ground
+        if (hazard.y >= GROUND_Y - 40) {
+          return true
+        }
+      }
+    }
+    return false
+  }, [])
 
   const startGame = useCallback(() => {
     setGameState("playing")
@@ -160,7 +185,12 @@ export default function SheepRun({ onGameOver, onStartPlaying }: SheepRunProps) 
     if (finalScore > highScore) setHighScore(finalScore)
     setScore(finalScore)
     onGameOver?.(finalScore)
-  }, [highScore, onGameOver])
+
+    // Auto-restart after 3 seconds
+    autoRestartRef.current = setTimeout(() => {
+      startGame()
+    }, 3000)
+  }, [highScore, onGameOver, startGame])
 
   const updateGame = useCallback(() => {
     const canvas = canvasRef.current
@@ -174,6 +204,11 @@ export default function SheepRun({ onGameOver, onStartPlaying }: SheepRunProps) 
     g.distance += g.speed / 10
     g.speed += 0.003
     g.sheep.animFrame++
+
+    // AI: Auto-jump if hazard detected
+    if (shouldAutoJump()) {
+      jump()
+    }
 
     // Clear
     ctx.fillStyle = "#080808"
@@ -238,32 +273,17 @@ export default function SheepRun({ onGameOver, onStartPlaying }: SheepRunProps) 
     if (gameState === "playing") {
       gameLoopRef.current = requestAnimationFrame(updateGame)
     }
-  }, [gameState, highScore, createHazard, endGame])
+  }, [gameState, highScore, createHazard, endGame, shouldAutoJump, jump])
 
-  // Input handlers
+  // Auto-start on mount
   useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => {
-      if (e.code === "Space" || e.code === "ArrowUp") {
-        e.preventDefault()
-        if (gameState === "menu") startGame()
-        else if (gameState === "playing") jump()
-        else if (gameState === "gameOver") startGame()
-      }
-    }
-    const handleClick = () => {
-      if (gameState === "menu") startGame()
-      else if (gameState === "playing") jump()
-    }
-
-    window.addEventListener("keydown", handleKey)
-    const canvas = canvasRef.current
-    canvas?.addEventListener("click", handleClick)
+    initGame()
+    startGame()
     return () => {
-      window.removeEventListener("keydown", handleKey)
-      canvas?.removeEventListener("click", handleClick)
       if (gameLoopRef.current) cancelAnimationFrame(gameLoopRef.current)
+      if (autoRestartRef.current) clearTimeout(autoRestartRef.current)
     }
-  }, [jump, startGame, gameState])
+  }, [initGame, startGame])
 
   useEffect(() => {
     if (gameState === "playing") {
@@ -282,46 +302,14 @@ export default function SheepRun({ onGameOver, onStartPlaying }: SheepRunProps) 
         style={{ display: "block" }}
       />
 
-      {/* Menu overlay */}
-      {gameState === "menu" && (
-        <div className="absolute inset-0 flex items-center justify-center bg-[#080808]/80 backdrop-blur-sm">
-          <div className="text-center space-y-6">
-            <div className="text-white/15 text-6xl font-mono mb-2">🐑</div>
-            <h2 className="text-xl font-medium text-white/60">Sheep Run</h2>
-            <p className="text-sm text-white/25 max-w-xs mx-auto">
-              Jump over obstacles. Space, ↑, or click to jump.
-            </p>
-            <button
-              onClick={startGame}
-              className="px-6 py-2.5 rounded-xl bg-white/[0.08] border border-white/[0.1] text-white/60 text-sm font-medium hover:bg-white/[0.12] hover:text-white/80 transition-all"
-            >
-              Start Game
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Game over overlay */}
+      {/* Game over overlay - shows briefly before auto-restart */}
       {gameState === "gameOver" && (
-        <div className="absolute inset-0 flex items-center justify-center bg-[#080808]/80 backdrop-blur-sm">
-          <div className="text-center space-y-6">
-            <p className="text-sm text-white/25 uppercase tracking-widest">Game Over</p>
-            <p className="text-3xl font-mono text-white/50">{score}</p>
-            <p className="text-xs text-white/20">High Score: {highScore}</p>
-            <div className="flex gap-3 justify-center pt-2">
-              <button
-                onClick={startGame}
-                className="px-5 py-2 rounded-xl bg-white/[0.08] border border-white/[0.1] text-white/60 text-sm hover:bg-white/[0.12] transition-all"
-              >
-                Try Again
-              </button>
-              <button
-                onClick={() => onStartPlaying?.()}
-                className="px-5 py-2 rounded-xl bg-white/[0.12] border border-white/[0.15] text-white/80 text-sm font-medium hover:bg-white/[0.18] transition-all"
-              >
-                Start Playing with LocalAgent →
-              </button>
-            </div>
+        <div className="absolute inset-0 flex items-center justify-center bg-[#080808]/90 backdrop-blur-sm">
+          <div className="text-center space-y-4 animate-pulse">
+            <p className="text-sm text-white/30 uppercase tracking-widest">Game Over</p>
+            <p className="text-4xl font-mono text-white/40">{score}</p>
+            <p className="text-xs text-white/15">High Score: {highScore}</p>
+            <p className="text-xs text-white/20 pt-2">Restarting in 3 seconds...</p>
           </div>
         </div>
       )}
