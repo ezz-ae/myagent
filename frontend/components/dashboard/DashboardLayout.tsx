@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useAgentStore } from "@/lib/store/agent-store"
 import DashboardSidebar from "./DashboardSidebar"
 
 interface DashboardLayoutProps {
@@ -8,14 +8,17 @@ interface DashboardLayoutProps {
 }
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const { isSidebarCollapsed, setSidebarCollapsed } = useAgentStore((state) => ({
+    isSidebarCollapsed: state.isSidebarCollapsed,
+    setSidebarCollapsed: state.setSidebarCollapsed,
+  }))
 
   return (
     <div className="flex h-screen w-full bg-[#080808]">
       {/* Sidebar */}
       <DashboardSidebar
-        collapsed={sidebarCollapsed}
-        onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
+        collapsed={isSidebarCollapsed}
+        onToggle={() => setSidebarCollapsed(!isSidebarCollapsed)}
       />
 
       {/* Main content */}
