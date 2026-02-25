@@ -11,7 +11,7 @@ To use this, you need to:
 """
 
 import os
-from typing import Optional
+from typing import Optional, Dict, Any
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -115,24 +115,28 @@ def get_call_status(call_sid: str) -> Optional[dict]:
         return None
 
 
+# In-memory store for active calls
+_active_calls: Dict[str, Any] = {}
+
+def add_active_call(call_sid: str, metadata: Dict[str, Any]) -> None:
+    """Add an active call to the in-memory store."""
+    _active_calls[call_sid] = metadata
+
+def remove_active_call(call_sid: str) -> None:
+    """Remove an active call from the in-memory store."""
+    _active_calls.pop(call_sid, None)
+
 def end_call(call_sid: str) -> bool:
-    """
-    Terminate an active call.
-
-    Args:
-        call_sid: The Twilio Call SID
-
-    Returns:
-        True if call was successfully terminated, False otherwise
-    """
+    """End an active call by its SID."""
     if not twilio_client:
         return False
-
     try:
-        twilio_client.calls(call_sid).update(status="completed")
+        call = twilio_client.calls(call_sid).update(status="completed")
+        print(f"Call {call.sid} status: {call.status}")
+        remove_active_call(call_sid)
         return True
     except Exception as e:
-        print(f"Error ending call: {e}")
+        print(f"Error ending call {call_sid}: {e}")
         return False
 
 
@@ -176,25 +180,6 @@ def generate_twiml_response(
     twiml += """</Response>"""
 
     return twiml
-
-
-# Call state tracking (in production, use a database)
-_active_calls: dict = {}
-
-
-def add_active_call(call_sid: str, metadata: dict) -> None:
-    """Track an active call."""
-    _active_calls[call_sid] = metadata
-
-
-def remove_active_call(call_sid: str) -> None:
-    """Remove a call from active tracking."""
-    _active_calls.pop(call_sid, None)
-
-
-def get_active_calls() -> dict:
-    """Get all currently active calls."""
-    return _active_calls.copy()
 
 
 # Example usage for FastAPI integration:

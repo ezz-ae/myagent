@@ -1,49 +1,28 @@
-"use client"
+'use client'
 
-import { useRouter } from "next/navigation"
-import Interactive3DGrid from "@/components/Interactive3DGrid"
+import Link from 'next/link'
+import { Manrope } from 'next/font/google'
+
+const manrope = Manrope({ subsets: ['latin'] })
 
 export default function LandingPage() {
-  const router = useRouter()
-
   return (
-    <div className="h-screen w-full overflow-hidden relative flex flex-col">
-      {/* 3D Interactive Grid Background - Full viewport */}
-      <div className="flex-1 relative">
-        <Interactive3DGrid
-          className="h-full w-full"
-          showOverlay={true}
-          overlayContent={
-            <div className="text-center space-y-8 pointer-events-auto">
-              <div className="space-y-4">
-                <h1 className="text-5xl md:text-7xl font-bold text-white">
-                  LocalAgent
-                </h1>
-                <p className="text-xl md:text-2xl text-white/70 max-w-2xl mx-auto">
-                  Your AI. Your machine. Your rules.
-                </p>
-              </div>
-
-              <button
-                onClick={() => router.push("/app")}
-                className="bg-white text-black font-bold py-3 px-8 rounded-lg hover:bg-gray-200 transition-all duration-300 text-lg shadow-lg hover:shadow-xl transform hover:scale-105"
-              >
-                Launch App
-              </button>
-
-              <p className="text-sm text-white/50 max-w-md mx-auto">
-                Spin the grid while exploring • Coming to a machine near you
-              </p>
-            </div>
-          }
-        />
-      </div>
-
-      {/* Footer - One-line Copy */}
-      <div className="relative z-20 backdrop-blur-sm bg-[#000000]/60 border-t border-white/[0.1] px-8 py-4">
-        <p className="text-center text-white/30 text-sm tracking-wide">
-          One-time payment. Zero telemetry. Forever yours. Running locally, always.
+    <div className={`relative flex flex-col items-center justify-center w-full h-screen bg-[#080808] text-white overflow-hidden ${manrope.className}`}>
+      <div className="z-10 text-center px-4">
+        <h1 className="text-5xl font-bold max-w-4xl mx-auto leading-tight">
+          Welcome to LocalAgent
+        </h1>
+        <p className="text-white/45 text-lg mt-5 max-w-2xl mx-auto">
+          Your pure local AI agent powered by Ollama. Build revenue-ready workflows locally with full control.
         </p>
+        <div className="mt-8">
+          <Link
+            href="/dashboard"
+            className="px-8 py-3 rounded-full bg-white text-black text-lg font-semibold hover:bg-white/90 transition-colors"
+          >
+            Launch LocalAgent Dashboard
+          </Link>
+        </div>
       </div>
     </div>
   )

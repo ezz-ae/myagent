@@ -1,12 +1,12 @@
 "use client"
 
-import { useState, useEffect, useCallback, useRef } from "react"
+import { useState, useEffect, useCallback, useRef, type ReactNode } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import {
   Bot, Activity, FileText, Mic, Lock, Link2, Settings,
   LayoutDashboard, BarChart3, Monitor, Brain, ChevronRight,
-  Loader2, MessageSquare
+  Loader2, MessageSquare, ArrowRight
 } from "lucide-react"
 import ActionSearchBar from "@/components/ActionSearchBar"
 import RemoteChat from "@/components/RemoteChat"
@@ -87,15 +87,113 @@ export default function MainApp() {
     { label: "Active Prompts", value: stats.activePrompts, icon: <Brain className="w-4 h-4" />, view: "prompts" as ActiveView },
   ]
 
-  const quickActions = [
-    { label: "Sessions", icon: <FileText className="w-5 h-5" />, view: "sessions" as ActiveView, desc: "Manage conversations" },
-    { label: "Prompts", icon: <Brain className="w-5 h-5" />, view: "prompts" as ActiveView, desc: "9 prompt types" },
-    { label: "Recordings", icon: <Mic className="w-5 h-5" />, view: "recordings" as ActiveView, desc: "Voice recordings" },
-    { label: "Activity", icon: <Activity className="w-5 h-5" />, view: "activity" as ActiveView, desc: "Smart event log" },
-    { label: "Secrets", icon: <Lock className="w-5 h-5" />, view: "secrets" as ActiveView, desc: "API keys & passwords" },
-    { label: "Links", icon: <Link2 className="w-5 h-5" />, view: "links" as ActiveView, desc: "Link Bio manager" },
-    { label: "Monitoring", icon: <Monitor className="w-5 h-5" />, view: "monitoring" as ActiveView, desc: "Real-time tracking" },
-    { label: "Settings", icon: <Settings className="w-5 h-5" />, view: "settings" as ActiveView, desc: "Configuration" },
+  type QuickAction = {
+    label: string
+    icon: ReactNode
+    view: ActiveView
+    desc: string
+    badge: string
+    accent: string
+    cta: string
+  }
+
+  const quickActions: QuickAction[] = [
+    {
+      label: "Sessions",
+      icon: <FileText className="w-5 h-5" />,
+      view: "sessions",
+      desc: "Live conversation history with archive controls.",
+      badge: "Session Control",
+      accent: "rgba(224, 211, 255, 0.45)",
+      cta: "Open sessions",
+    },
+    {
+      label: "Prompts",
+      icon: <Brain className="w-5 h-5" />,
+      view: "prompts",
+      desc: "Activate, stack, and refine the 9 prompt categories.",
+      badge: "Prompt Lab",
+      accent: "rgba(110, 231, 183, 0.45)",
+      cta: "Tune prompts",
+    },
+    {
+      label: "Recordings",
+      icon: <Mic className="w-5 h-5" />,
+      view: "recordings",
+      desc: "Review audio outputs, download MP3s, and manage captures.",
+      badge: "Voice Studio",
+      accent: "rgba(165, 180, 252, 0.45)",
+      cta: "Play recordings",
+    },
+    {
+      label: "Activity",
+      icon: <Activity className="w-5 h-5" />,
+      view: "activity",
+      desc: "Chronological feed with prompts, errors, and warnings.",
+      badge: "Activity Feed",
+      accent: "rgba(251, 191, 36, 0.45)",
+      cta: "Inspect log",
+    },
+    {
+      label: "Secrets",
+      icon: <Lock className="w-5 h-5" />,
+      view: "secrets",
+      desc: "Encrypted credentials, keys, and copy history stays local.",
+      badge: "Secure Vault",
+      accent: "rgba(16, 185, 129, 0.45)",
+      cta: "Guard secrets",
+    },
+    {
+      label: "Links",
+      icon: <Link2 className="w-5 h-5" />,
+      view: "links",
+      desc: "Link Bio manager for creators with analytics-ready data.",
+      badge: "Link Studio",
+      accent: "rgba(59, 130, 246, 0.45)",
+      cta: "Curate links",
+    },
+    {
+      label: "Monitoring",
+      icon: <Monitor className="w-5 h-5" />,
+      view: "monitoring",
+      desc: "Runbooks, health checks, and telemetry snapshot cards.",
+      badge: "Ops Center",
+      accent: "rgba(129, 140, 248, 0.45)",
+      cta: "View health",
+    },
+    {
+      label: "Settings",
+      icon: <Settings className="w-5 h-5" />,
+      view: "settings",
+      desc: "Configure widgets, tasks, and operational notes.",
+      badge: "Config Studio",
+      accent: "rgba(148, 163, 184, 0.45)",
+      cta: "Adjust settings",
+    },
+  ]
+
+  const highlightSections = [
+    {
+      title: "Monetization Playbooks",
+      label: "Convert AI work into revenue",
+      detail: "Browse monetization models tied to voice, prompts, ads, dashboards, and automations.",
+      href: "/monetization",
+      accent: "from-orange-500/10 via-amber-400/20 to-orange-600/40",
+    },
+    {
+      title: "System Docs",
+      label: "Reference every subsystem",
+      detail: "Identity, API, memory, orchestration, and compliance details on one page.",
+      href: "/docs",
+      accent: "from-indigo-500/10 via-blue-600/20 to-slate-900/70",
+    },
+    {
+      title: "Orchestration Pipelines",
+      label: "Chain intelligent workflows",
+      detail: "Link prompts, voice, calling, and dashboards into automation sessions.",
+      href: "/orchestration",
+      accent: "from-sky-500/10 via-cyan-500/20 to-slate-900/70",
+    },
   ]
 
   return (
@@ -181,22 +279,65 @@ export default function MainApp() {
             {/* Quick Actions Grid */}
             <div className="mb-10">
               <h2 className="text-sm text-white/25 uppercase tracking-widest mb-4">Quick Actions</h2>
-              <div className="grid grid-cols-4 gap-3">
+              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
                 {quickActions.map((action) => (
                   <button
                     key={action.label}
                     onClick={() => setActiveView(action.view)}
-                    className="flex flex-col items-center gap-3 px-4 py-5 rounded-xl bg-white/[0.02] border border-white/[0.05] hover:bg-white/[0.05] hover:border-white/[0.08] transition-all group"
+                    className="group relative overflow-hidden rounded-2xl border border-white/[0.06] bg-[#0f0f12] px-5 py-6 text-left text-sm shadow-[0_30px_90px_-60px_rgba(255,255,255,0.4)] transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/40"
+                    style={{
+                      backgroundImage: `linear-gradient(145deg, rgba(255,255,255,0.08), transparent 60%), radial-gradient(circle at top right, rgba(255,255,255,0.08), transparent 45%), linear-gradient(to bottom right, ${action.accent}, rgba(5,5,10,0.8))`,
+                    }}
+                    aria-label={`${action.label}: ${action.desc}`}
                   >
-                    <span className="text-white/20 group-hover:text-white/40 transition-colors">{action.icon}</span>
-                    <div className="text-center">
-                      <p className="text-sm text-white/50 group-hover:text-white/70 font-medium transition-colors">{action.label}</p>
-                      <p className="text-[10px] text-white/15 mt-0.5">{action.desc}</p>
+                    <div className="flex items-center justify-between gap-2 mb-3">
+                      <span className="text-white/20">{action.icon}</span>
+                      <span className="text-[10px] uppercase tracking-[0.3em] text-white/40">
+                        {action.badge}
+                      </span>
+                    </div>
+                    <p className="text-lg font-semibold text-white/80 mb-2">{action.label}</p>
+                    <p className="text-xs text-white/40 leading-relaxed mb-4">{action.desc}</p>
+                    <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.3em] text-white/60">
+                      <ChevronRight className="w-3 h-3" />
+                      {action.cta}
                     </div>
                   </button>
                 ))}
               </div>
             </div>
+
+            <section className="mb-10">
+              <div className="mb-5 flex items-center justify-between gap-4">
+                <div>
+                  <p className="text-xs text-white/40 uppercase tracking-[0.4em]">Explore pages</p>
+                  <h2 className="text-2xl text-white font-semibold">Each lane gets its own story</h2>
+                </div>
+                <Link
+                  href="/blog"
+                  className="text-xs font-medium text-white/60 hover:text-white transition-colors uppercase tracking-[0.4em]"
+                >
+                  More guides
+                </Link>
+              </div>
+              <div className="grid gap-4 sm:grid-cols-2">
+                {highlightSections.map((section) => (
+                  <Link
+                    key={section.title}
+                    href={section.href}
+                    className={`group rounded-2xl border border-white/[0.08] bg-gradient-to-br ${section.accent} p-6 shadow-[0_30px_80px_-60px_rgba(15,23,42,0.9)] transition-all hover:-translate-y-0.5 hover:shadow-[0_40px_110px_-50px_rgba(255,255,255,0.25)]`}
+                  >
+                    <p className="text-xs uppercase tracking-[0.3em] text-white/40 mb-1">{section.label}</p>
+                    <h3 className="text-xl font-semibold text-white/90 mb-2">{section.title}</h3>
+                    <p className="text-sm text-white/60 leading-relaxed">{section.detail}</p>
+                    <div className="mt-4 flex items-center gap-2 text-[11px] uppercase tracking-[0.3em] text-white/70">
+                      <ArrowRight className="w-3.5 h-3.5" />
+                      Visit
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </section>
 
             {/* System info */}
             <div className="px-5 py-4 rounded-xl bg-white/[0.02] border border-white/[0.04]">

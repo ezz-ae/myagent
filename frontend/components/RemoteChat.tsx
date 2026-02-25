@@ -4,9 +4,8 @@ import { useState, useRef, useEffect, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import {
   X, Maximize2, Minimize2, Send, Loader2, Bot,
-  Volume2, Mic, Square, Search, Sparkles
+  Volume2, Mic, Square, Search
 } from "lucide-react"
-import Interactive3DGrid from "./Interactive3DGrid"
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000"
 
@@ -36,7 +35,7 @@ export default function RemoteChat({
   sessionId: externalSessionId,
 }: RemoteChatProps) {
   const [expanded, setExpanded] = useState(false)
-  const [show3DGrid, setShow3DGrid] = useState(false)
+
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [input, setInput] = useState("")
   const [loading, setLoading] = useState(false)
@@ -204,11 +203,10 @@ export default function RemoteChat({
 
   // ── EXPANDED STATE ──────────────────────────────────────────
 
-  // If 3D grid is enabled, show it as full-screen background with chat overlay
-  if (show3DGrid && expanded) {
+  if (false) {
     return (
       <div className="fixed inset-0 z-50">
-        <Interactive3DGrid className="h-full w-full" />
+        <div className="h-full w-full" />
 
         <AnimatePresence>
           <motion.div
